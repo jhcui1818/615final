@@ -5,8 +5,8 @@ account: jhcui
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 250126
-bundleId: 1142152
+bundleId: 1142427
 url: https://jhcui.shinyapps.io/twitter_text/
-when: 1513659149.4858
+when: 1513674752.59247
 asMultiple: FALSE
 asStatic: FALSE
