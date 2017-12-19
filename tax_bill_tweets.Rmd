@@ -30,6 +30,7 @@ The recently released tax bill have raised a big controversy. The objective of m
 
 #### 2.1 Plotly
 
+"rt" appers the most because it represents "retweet". From the plot we can see that people tweet about tax bill with words "gop", "vote", "deficient" and "senatorbollins", etc.
 ```{r}
 total1_reduced <- readRDS(file = "total1_reduced.rds")
 total2_reduced <- readRDS(file = "total2_reduced.rds")
@@ -81,6 +82,8 @@ total2.sentiment %>%
 ```
 
 #### 2.3 Word Clouds
+
+The sentiment analysis can be shown as word clouds for better visualization.
 ```{r}
 total1.sentiment2 %>%
   acast(words ~ sentiment, value.var = "n", fill = 0) %>%
