@@ -6,11 +6,11 @@ library(wordcloud)
 library(reshape2)
 library(dplyr)
 library(ggmap)
-total1_reduced <- readRDS(file = "total1_reduced.rds")
-total2_reduced <- readRDS(file = "total2_reduced.rds")
-total1_sentiment2 <- readRDS(file = "total1.sentiment2.rds")
-total2_sentiment <- readRDS(file = "total2.sentiment.rds")
-text.df8.map <- readRDS(file="text.df8.map.rds")
+
+
+
+
+
 
 
 ui <- shinyUI(fluidPage(
@@ -47,7 +47,16 @@ ui <- shinyUI(fluidPage(
                                       choices = c("first_week", "last_week"))
                         ),
                         mainPanel = plotOutput("senti")
-                      )), # end of sentiment
+                      )),
+             tabPanel("First Week Trend",
+                      h4("Above 0 means there are more positive words than negative words and below 0 means there are more negative words than positive words."),
+                      sidebarLayout(
+                        sidebarPanel(
+                          checkboxGroupInput("date", "Date range:",
+                                         choices = c("2017-12-01", "2017-12-02", "2017-12-03", "2017-12-04", "2017-12-05", "2017-12-06", "2017-12-07"))
+                        ),
+                      mainPanel = plotOutput("senti2")
+                      )),# end of sentiment
              tabPanel("Word Clouds",
                       sidebarLayout(
                         sidebarPanel(
@@ -70,12 +79,14 @@ ui <- shinyUI(fluidPage(
 
 server <- function(input, output) {
   output$barplot <- renderPlot({if(input$date == "first_week"){
+    total1_reduced <- readRDS(file = "total1_reduced.rds")
     ggplot(total1_reduced,aes(x=reorder(words, -n), y=n, fill=n)) +
       geom_col(fill = "steelblue2") +
       theme(axis.text.x=element_text(angle=45, hjust=1, size = 9)) +
       labs(x = "Frequency", y = "Words")
   }
-    else {  
+    else { 
+      total2_reduced <- readRDS(file = "total2_reduced.rds")
       ggplot(total2_reduced,aes(x=reorder(words,-n), y=n)) +
         geom_col(fill = "steelblue2") +
         theme(axis.text.x=element_text(angle=45, hjust=1, size = 9)) +
@@ -85,7 +96,7 @@ server <- function(input, output) {
 
 ## Sentiment Analysis  
   output$senti <- renderPlot({if(input$date == "first_week"){
-    
+    total1_sentiment2 <- readRDS(file = "total1.sentiment2.rds")
     total1_sentiment2 %>%
       group_by(sentiment) %>%
       top_n(10,n) %>%
@@ -99,7 +110,7 @@ server <- function(input, output) {
       coord_flip()
   }
   else {
-    
+    total2_sentiment <- readRDS(file = "total2.sentiment.rds")
     total2_sentiment %>%
       group_by(sentiment) %>%
       top_n(10,n) %>%
@@ -112,10 +123,18 @@ server <- function(input, output) {
            x = NULL) +
       coord_flip()
   }})
-
+  
+## trend sentiment
+  output$senti2 <- renderPlot({
+    total1_sentiment3 <- readRDS(file="total1_sentiment3.rds")
+    total_for_plot <- filter(total1_sentiment3, date == input$date)
+    ggplot(total_for_plot, aes(date,sentiment)) +
+      geom_col(show.legend = FALSE, fill="steelblue2")
+  })
+  
 ## Word Clouds
   output$clouds <- renderPlot({if(input$date == "first_week"){
-    
+    total1_sentiment2 <- readRDS(file = "total1.sentiment2.rds")
     total1_sentiment2 %>%
       acast(words ~ sentiment, value.var = "n", fill = 0) %>%
       comparison.cloud(colors = c("steelblue2", "tomato3"),
@@ -123,7 +142,7 @@ server <- function(input, output) {
   }
   
   else{
-  
+    total2_sentiment <- readRDS(file = "total2.sentiment.rds")
     total2_sentiment %>%
       acast(words ~ sentiment, value.var = "n", fill = 0) %>%
       comparison.cloud(colors = c("steelblue2", "tomato3"),
@@ -131,7 +150,8 @@ server <- function(input, output) {
   }})
 ## Map
   output$map <- renderPlot({
-    tmp <- get_map(location = text.df8.map, zoom = 5)
+    text.df8.map <- readRDS(file="text.df8.map.rds")
+    tmp <- readRDS(file = "tmp.rds")
     ggmap(tmp) +
       geom_point(data=text.df8.map, aes(x=longitude, y= latitude))
   })
