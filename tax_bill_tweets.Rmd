@@ -22,6 +22,12 @@ The recently released tax bill have raised a big controversy. The objective of m
 
 ##2. Method
 
+
+* Barplot and Plotly
+* Sentiment Analysis
+* Word Clouds  
+* Map    
+
 #### 2.1 Plotly
 
 ```{r}
