@@ -41,6 +41,7 @@ ggplotly(p2)
 ```
 
 #### 2.2 Sentiment Analysis
+There are more positive words comparing to the first day. Was the public become more positive to the new tax bill?
 ```{r}
 total1.sentiment <- readRDS(file = "total1.sentiment.rds")
 total1.sentiment2 <- readRDS(file = "total1.sentiment2.rds")

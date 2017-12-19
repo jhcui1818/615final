@@ -27,7 +27,7 @@ The recently released tax bill have raised a big controversy. The objective of m
 - Map
 
 ## Barplots & Plotly: first week
-
+A lot of people worry the new tax bill would cause economic deficit and more debt of the United States.
 ```{r}
 total1_reduced <- readRDS(file = "total1_reduced.rds")
 
@@ -51,6 +51,7 @@ ggplotly(p2)
 ```
 
 ## Sentiment Analysis: first week
+There are more positive words comparing to the first day. Was the public become more positive to the new tax bill?
 ```{r}
 total1.sentiment <- readRDS(file = "total1.sentiment.rds")
 total1.sentiment2 <- readRDS(file = "total1.sentiment2.rds")
