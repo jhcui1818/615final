@@ -27,7 +27,8 @@ The recently released tax bill have raised a big controversy. The objective of m
 - Map
 
 ## Barplots & Plotly: first week
-A lot of people worry the new tax bill would cause economic deficit and more debt of the United States.
+A lot of people worry the new tax bill would cause economic deficit and more debt of the United States. "rt" appers the most because it represents "retweet". From the plot we can see that people tweet about tax bill with words "gop", "vote", "deficient" and "senatorbollins", etc.
+
 ```{r}
 total1_reduced <- readRDS(file = "total1_reduced.rds")
 
@@ -91,6 +92,7 @@ total2.sentiment %>%
 ```
 
 ## Word Clouds: first week
+The sentiment analysis can be shown as word clouds for better visualization.
 ```{r}
 total1.sentiment2 %>%
   acast(words ~ sentiment, value.var = "n", fill = 0) %>%
@@ -112,7 +114,7 @@ total2.sentiment %>%
 text.df8.map <- readRDS(file="text.df8.map.rds")
 text.df8.map$longitude <- as.numeric(text.df8.map$longitude)
 text.df8.map$latitude <- as.numeric(text.df8.map$latitude)
-tmp <- get_map(location = text.df8.map, zoom = 5)
+tmp <- readRDS(file="tmp.rds")
 ggmap(tmp) +
   geom_point(data=text.df8.map, aes(x=longitude, y= latitude))
 
