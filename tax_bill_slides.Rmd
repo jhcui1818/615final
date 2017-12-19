@@ -1,0 +1,119 @@
+---
+title: "Tax Bill Tweets Analysis"
+author: "Jinghan Cui"
+date: "12/18/2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plotly)
+library(ggplot2)
+library(tidyr)
+library(wordcloud)
+library(reshape2)
+library(dplyr)
+library(ggmap)
+```
+## Overview
+
+The recently released tax bill have raised a big controversy. The objective of my project is to analyze how public comments change over two weeks after the tax bill released. The data is pulled from twitter during the the first week (12.01-12.08) and the second week (12.10-12.18). I use text mining, plotly, sentiment analysis, word clouds and map to show the public attitude's trend over the two weeks.
+
+## Methods
+
+- Barplots & Plotly
+- Sentiment Analysis
+- Word Clouds
+- Map
+
+## Barplots & Plotly: first week
+
+```{r}
+total1_reduced <- readRDS(file = "total1_reduced.rds")
+
+p1 <- ggplot(total1_reduced,aes(x=reorder(words, -n), y=n, fill=n)) +
+  geom_col(fill = "steelblue2") +
+  theme(axis.text.x=element_text(angle=45, hjust=1, size = 9)) +
+  labs(x = "Frequency", y = "Words")
+ggplotly(p1)
+```
+
+## Barplots & Plotly: second week
+
+```{r }
+total2_reduced <- readRDS(file = "total2_reduced.rds")
+p2 <- ggplot(total2_reduced,aes(x=reorder(words,-n), y=n)) +
+  geom_col(fill = "steelblue2") +
+  theme(axis.text.x=element_text(angle=45, hjust=1, size = 9)) +
+  labs(x = "Frequency", y = "Words")
+
+ggplotly(p2)
+```
+
+## Sentiment Analysis: first week
+```{r}
+total1.sentiment <- readRDS(file = "total1.sentiment.rds")
+total1.sentiment2 <- readRDS(file = "total1.sentiment2.rds")
+total2.sentiment <- readRDS(file = "total2.sentiment.rds")
+ggplot(total1.sentiment, aes(date,sentiment)) +
+  geom_col(show.legend = FALSE, fill="steelblue2")
+```
+
+## Sentiment Analysis: first week
+```{r }
+total1.sentiment2 %>%
+  group_by(sentiment) %>%
+  top_n(10,n) %>%
+  ungroup() %>%
+  mutate(word = reorder(words, n)) %>%
+  ggplot(.,aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+```
+
+## Sentiment Analysis: second week
+```{r }
+total2.sentiment %>%
+  group_by(sentiment) %>%
+  top_n(10,n) %>%
+  ungroup() %>%
+  mutate(word = reorder(words, n)) %>%
+  ggplot(.,aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+```
+
+## Word Clouds: first week
+```{r}
+total1.sentiment2 %>%
+  acast(words ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("steelblue2", "tomato3"),
+                   max.words = 100)
+```
+
+## Word Clouds: second week
+```{r }
+total2.sentiment %>%
+  acast(words ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("steelblue2", "tomato3"),
+                   max.words = 100)
+
+```
+
+## Map: second week
+```{r, warning=FALSE}
+text.df8.map <- readRDS(file="text.df8.map.rds")
+text.df8.map$longitude <- as.numeric(text.df8.map$longitude)
+text.df8.map$latitude <- as.numeric(text.df8.map$latitude)
+tmp <- get_map(location = text.df8.map, zoom = 5)
+ggmap(tmp) +
+  geom_point(data=text.df8.map, aes(x=longitude, y= latitude))
+
+```
+
