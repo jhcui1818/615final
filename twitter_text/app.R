@@ -6,7 +6,11 @@ library(wordcloud)
 library(reshape2)
 library(dplyr)
 library(ggmap)
-
+total1_reduced <- readRDS(file = "total1_reduced.rds")
+total2_reduced <- readRDS(file = "total2_reduced.rds")
+total1_sentiment2 <- readRDS(file = "total1.sentiment2.rds")
+total2_sentiment <- readRDS(file = "total2.sentiment.rds")
+text.df8.map <- readRDS(file="text.df8.map.rds")
 
 
 ui <- shinyUI(fluidPage(
@@ -25,6 +29,7 @@ ui <- shinyUI(fluidPage(
                         trend over the two weeks.")
                       ), # end of overview
              tabPanel("Barplot",
+                      h4("A lot of people worry the new tax bill would cause economic deficit and more debt of the United States."),
                       sidebarLayout(
                         sidebarPanel(
                           selectInput(inputId = "date",
@@ -34,6 +39,7 @@ ui <- shinyUI(fluidPage(
                         mainPanel = plotOutput("barplot")
                       )),# end of barplot
              tabPanel("Sentiment Analysis",
+                      h4("There are more positive words comparing to the first day. Was the public become more positive to the new tax bill?"),
                       sidebarLayout(
                         sidebarPanel(
                           selectInput(inputId = "date",
@@ -52,7 +58,10 @@ ui <- shinyUI(fluidPage(
                         mainPanel = plotOutput("clouds")
                       )), # end of word clouds
              tabPanel("Map",
-                      mainPanel = plotOutput("map")
+                      mainPanel = plotOutput("map"),
+                      p("There are only two tweets with locations in 20000 tweets I searched for. 
+                        Thoes two are just examples of plot on map. Further analysis can be conducted if device 
+                        is able to process larger data.")
                       ))
              )
   
@@ -60,15 +69,13 @@ ui <- shinyUI(fluidPage(
 
 
 server <- function(input, output) {
-  output$barplot <- renderPlot({if(input$date == 'first_week'){
-    total1_reduced <- readRDS(file = "total1_reduced.rds")
+  output$barplot <- renderPlot({if(input$date == "first_week"){
     ggplot(total1_reduced,aes(x=reorder(words, -n), y=n, fill=n)) +
       geom_col(fill = "steelblue2") +
       theme(axis.text.x=element_text(angle=45, hjust=1, size = 9)) +
       labs(x = "Frequency", y = "Words")
   }
-    if(input$date == "last_week"){  
-      total2_reduced <- readRDS(file = "total2_reduced.rds")
+    else {  
       ggplot(total2_reduced,aes(x=reorder(words,-n), y=n)) +
         geom_col(fill = "steelblue2") +
         theme(axis.text.x=element_text(angle=45, hjust=1, size = 9)) +
@@ -77,8 +84,8 @@ server <- function(input, output) {
   )
 
 ## Sentiment Analysis  
-  output$senti <- renderPlot({if(input$date == 'first_week'){
-    total1_sentiment2 <- readRDS(file = "total1.sentiment2.rds")
+  output$senti <- renderPlot({if(input$date == "first_week"){
+    
     total1_sentiment2 %>%
       group_by(sentiment) %>%
       top_n(10,n) %>%
@@ -91,8 +98,8 @@ server <- function(input, output) {
            x = NULL) +
       coord_flip()
   }
-  if(input$date == "last_week"){
-    total2_sentiment <- readRDS(file = "total2.sentiment.rds")
+  else {
+    
     total2_sentiment %>%
       group_by(sentiment) %>%
       top_n(10,n) %>%
@@ -108,15 +115,15 @@ server <- function(input, output) {
 
 ## Word Clouds
   output$clouds <- renderPlot({if(input$date == "first_week"){
-    total1_sentiment2 <- readRDS(file = "total1.sentiment2.rds")
+    
     total1_sentiment2 %>%
       acast(words ~ sentiment, value.var = "n", fill = 0) %>%
       comparison.cloud(colors = c("steelblue2", "tomato3"),
                        max.words = 100)
   }
   
-  if(input$date == "last_week"){
-    total2_sentiment <- readRDS(file = "total2.sentiment.rds")
+  else{
+  
     total2_sentiment %>%
       acast(words ~ sentiment, value.var = "n", fill = 0) %>%
       comparison.cloud(colors = c("steelblue2", "tomato3"),
@@ -124,9 +131,6 @@ server <- function(input, output) {
   }})
 ## Map
   output$map <- renderPlot({
-    text.df8.map <- readRDS(file="text.df8.map.rds")
-    text.df8.map$longitude <- as.numeric(text.df8.map$longitude)
-    text.df8.map$latitude <- as.numeric(text.df8.map$latitude)
     tmp <- get_map(location = text.df8.map, zoom = 5)
     ggmap(tmp) +
       geom_point(data=text.df8.map, aes(x=longitude, y= latitude))
