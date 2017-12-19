@@ -1,0 +1,12 @@
+name: twitter_text
+title: twitter_text
+username:
+account: jhcui
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 250126
+bundleId: 1142104
+url: https://jhcui.shinyapps.io/twitter_text/
+when: 1513657336.0792
+asMultiple: FALSE
+asStatic: FALSE
